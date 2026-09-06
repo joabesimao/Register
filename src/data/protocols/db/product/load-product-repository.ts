@@ -1,8 +1,8 @@
-import { OrderDeliveryModel } from "../../../../domain/models/order-delivery/order-delivery";
 import { Product, ProductModel } from "../../../usescases/product-usecases/add-product-usecase/db-add-product-protocols";
+import { LoadProductFilter, LoadProductResult } from "../../../../domain/models/product/product";
 
 export interface LoadProductRepository {
-  getAllProducts(productId?: number): Promise<Product[]>;
+  getAllProducts(filter?: LoadProductFilter): Promise<LoadProductResult>;
 }
 
 export interface LoadProductByIdRepository {

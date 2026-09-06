@@ -1,7 +1,11 @@
-import { Product } from "../../../models/product/product";
+import {
+  Product,
+  LoadProductFilter,
+  LoadProductResult,
+} from "../../../models/product/product";
 
 export interface LoadAllProduct {
-  load(): Promise<Product[]>;
+  load(filter?: LoadProductFilter): Promise<LoadProductResult>;
 }
 
 export interface LoadProductById {

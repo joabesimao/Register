@@ -12,3 +12,17 @@ export interface Product {
   description: string;
   category: string;
 }
+
+export interface LoadProductFilter {
+  name?: string;
+  category?: string;
+  priceMin?: number;
+  priceMax?: number;
+  limit?: number;
+  offset?: number;
+}
+
+export interface LoadProductResult {
+  items: Product[];
+  total: number;
+}

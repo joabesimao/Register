@@ -6,7 +6,12 @@ import {
   LoadProductRepository,
 } from "../../../../data/protocols/db/product/load-product-repository";
 import { UpdateProductRepository } from "../../../../data/protocols/db/product/update-product-repository";
-import { Product, ProductModel } from "../../../../domain/models/product/product";
+import {
+  Product,
+  ProductModel,
+  LoadProductFilter,
+  LoadProductResult,
+} from "../../../../domain/models/product/product";
 import { AddProductModel } from "../../../../domain/usescases/product/add-product/add-product";
 
 export class ProductMysqlRepository
@@ -31,11 +36,32 @@ export class ProductMysqlRepository
     return { ...result, price: Number(result.price) };
   }
 
-  async getAllProducts(): Promise<Product[]> {
-    const result = await this.prisma.product.findMany({
-      orderBy: { name: "asc" },
-    });
-    return result.map((product) => ({ ...product, price: Number(product.price) }));
+  async getAllProducts(filter: LoadProductFilter = {}): Promise<LoadProductResult> {
+    const { name, category, priceMin, priceMax, limit, offset } = filter;
+
+    const where: any = {};
+    if (name) where.name = { contains: name };
+    if (category) where.category = category;
+    if (priceMin !== undefined || priceMax !== undefined) {
+      where.price = {};
+      if (priceMin !== undefined) where.price.gte = priceMin;
+      if (priceMax !== undefined) where.price.lte = priceMax;
+    }
+
+    const [items, total] = await Promise.all([
+      this.prisma.product.findMany({
+        where,
+        orderBy: { name: "asc" },
+        ...(limit !== undefined && { take: limit }),
+        ...(offset !== undefined && { skip: offset }),
+      }),
+      this.prisma.product.count({ where }),
+    ]);
+
+    return {
+      items: items.map((product) => ({ ...product, price: Number(product.price) })),
+      total,
+    };
   }
 
   async getOneProduct(id: number): Promise<Product> {
