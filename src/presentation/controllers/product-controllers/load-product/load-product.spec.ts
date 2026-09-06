@@ -1,8 +1,13 @@
 import { LoadAllProduct } from "../../../../domain/usescases/product/load-product/load-product";
-import { Product } from "../../../../domain/models/product/product";
+import {
+  LoadProductFilter,
+  LoadProductResult,
+  Product,
+} from "../../../../domain/models/product/product";
 import { LoadProductController } from "./load-product";
 import { HttpRequest } from "../../../protocols/http";
-import { ok, serverError } from "../../../helpers/http/http-helper";
+import { badRequest, ok, serverError } from "../../../helpers/http/http-helper";
+import { InvalidParamError } from "../../../errors";
 
 const makeFakeProducts = (): Product[] => [
   {
@@ -14,10 +19,15 @@ const makeFakeProducts = (): Product[] => [
   },
 ];
 
+const makeFakeResult = (): LoadProductResult => ({
+  items: makeFakeProducts(),
+  total: 1,
+});
+
 const makeLoadAllProductStub = (): LoadAllProduct => {
   class LoadAllProductStub implements LoadAllProduct {
-    async load(): Promise<Product[]> {
-      return new Promise((resolve) => resolve(makeFakeProducts()));
+    async load(filter?: LoadProductFilter): Promise<LoadProductResult> {
+      return new Promise((resolve) => resolve(makeFakeResult()));
     }
   }
   return new LoadAllProductStub();
@@ -38,17 +48,67 @@ const makeSut = (): SutTypes => {
 };
 
 describe("LoadProduct Controller", () => {
-  test("Should call LoadAllProduct", async () => {
+  test("Should call LoadAllProduct with parsed query params", async () => {
     const { sut, loadProductStub } = makeSut();
     const loadSpy = jest.spyOn(loadProductStub, "load");
-    await sut.handle({} as HttpRequest);
-    expect(loadSpy).toHaveBeenCalled();
+    const httpRequest: HttpRequest = {
+      query: {
+        name: "prod",
+        category: "cat",
+        priceMin: "10",
+        priceMax: "20",
+        limit: "5",
+        offset: "0",
+      },
+    };
+    await sut.handle(httpRequest);
+    expect(loadSpy).toHaveBeenCalledWith({
+      name: "prod",
+      category: "cat",
+      priceMin: 10,
+      priceMax: 20,
+      limit: 5,
+      offset: 0,
+    });
   });
 
-  test("Should return 200 with products on success", async () => {
+  test("Should default limit and offset when omitted", async () => {
+    const { sut, loadProductStub } = makeSut();
+    const loadSpy = jest.spyOn(loadProductStub, "load");
+    await sut.handle({ query: {} });
+    expect(loadSpy).toHaveBeenCalledWith({
+      name: undefined,
+      category: undefined,
+      priceMin: undefined,
+      priceMax: undefined,
+      limit: 50,
+      offset: 0,
+    });
+  });
+
+  test("Should return 200 with items and pagination on success", async () => {
     const { sut } = makeSut();
-    const httpResponse = await sut.handle({} as HttpRequest);
-    expect(httpResponse).toEqual(ok(makeFakeProducts()));
+    const httpResponse = await sut.handle({ query: {} });
+    expect(httpResponse).toEqual(
+      ok({
+        items: makeFakeProducts(),
+        pagination: { total: 1, limit: 50, offset: 0, hasMore: false },
+      })
+    );
+  });
+
+  test("Should return 400 if priceMin is greater than priceMax", async () => {
+    const { sut } = makeSut();
+    const httpResponse = await sut.handle({
+      query: { priceMin: "20", priceMax: "10" },
+    });
+    expect(httpResponse).toEqual(badRequest(new InvalidParamError("priceMin")));
+  });
+
+  test("Should return 400 if limit is invalid", async () => {
+    const { sut } = makeSut();
+    const httpResponse = await sut.handle({ query: { limit: "-1" } });
+    expect(httpResponse).toEqual(badRequest(new InvalidParamError("limit")));
   });
 
   test("Should return 500 if LoadAllProduct throws", async () => {
@@ -58,7 +118,7 @@ describe("LoadProduct Controller", () => {
       .mockReturnValueOnce(
         new Promise((resolve, reject) => reject(new Error()))
       );
-    const httpResponse = await sut.handle({} as HttpRequest);
+    const httpResponse = await sut.handle({ query: {} });
     expect(httpResponse).toEqual(serverError(new Error()));
   });
 });
