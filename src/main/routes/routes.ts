@@ -43,6 +43,11 @@ import { makeDeleteChatMessageController } from "../factories/delete-chat-messag
 import { makeUpdateChatMessageController } from "../factories/update-chat-message";
 import { makeSearchChatMessagesController } from "../factories/search-chat-messages";
 import { makeGetChatStatisticsController } from "../factories/get-chat-statistics";
+import { makeAddProductController } from "../factories/add-product";
+import { makeLoadProductController } from "../factories/load-product";
+import { makeLoadOneProductController } from "../factories/load-one-product";
+import { makeUpdateProductController } from "../factories/update-product";
+import { makeDeleteProductController } from "../factories/delete-product";
 
 export default (router: Router): void => {
   router.get("/register", adaptRoute(makeLoadRegisterController()));
@@ -217,9 +222,12 @@ export default (router: Router): void => {
   router.get("/city", adaptRoute(makeLoadCityController()));
   router.get("/neighborhood", adaptRoute(makeLoadNeighborhoodController()));
   router.get("/deliveryman", adaptRoute(makeLoadDeliverymanController()));
+  router.get("/product", adaptRoute(makeLoadProductController()));
+  router.get("/product/:id", adaptRoute(makeLoadOneProductController()));
   router.post("/city", adaptRoute(makeAddCityController()));
   router.post("/neighborhood", adaptRoute(makeAddNeighborhoodController()));
   router.post("/deliveryman", adaptRoute(makeAddDeliverymanController()));
+  router.post("/product", adaptRoute(makeAddProductController()));
   router.post("/register", adaptRoute(makeAddRegisterController()));
   router.post("/signup", adaptRoute(makeSignupController()));
   router.post("/login", adaptRoute(makeLoginController()));
@@ -240,6 +248,7 @@ export default (router: Router): void => {
     adaptRoute(makeUpdateOrderDeliveryController()),
   );
   router.put("/deliveryman/:id", adaptRoute(makeUpdateDeliverymanController()));
+  router.put("/product/:id", adaptRoute(makeUpdateProductController()));
   router.delete(
     "/register/:id",
 
@@ -252,6 +261,10 @@ export default (router: Router): void => {
   router.delete(
     "/deliveryman/:id",
     adaptRoute(makeDeleteDeliverymanController()),
+  );
+  router.delete(
+    "/product/:id",
+    adaptRoute(makeDeleteProductController()),
   );
 
   // Chat endpoints
