@@ -331,5 +331,22 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
         }
       },
     );
+
+    // Typing indicator
+    socket.on("chat:typing", (payload: { isTyping: boolean }) => {
+      socket.to(session.networkRoom).emit("chat:typing", {
+        accountId: session.account.id,
+        name: session.account.name,
+        isTyping: Boolean(payload?.isTyping),
+      });
+    });
+
+    socket.on("disconnect", () => {
+      socket.to(session.networkRoom).emit("chat:typing", {
+        accountId: session.account.id,
+        name: session.account.name,
+        isTyping: false,
+      });
+    });
   });
 };
