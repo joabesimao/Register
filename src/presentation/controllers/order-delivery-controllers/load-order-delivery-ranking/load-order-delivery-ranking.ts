@@ -10,16 +10,17 @@ export class LoadOrderDeliveryRankingController implements Controller {
 
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
-      const startDate = new Date(httpRequest.headers?.startDate);
-      const endDate = new Date(httpRequest.headers?.endDate);
-      const status = String(httpRequest.headers?.status ?? "all");
-      const page = Number(httpRequest.headers?.page ?? 1);
-      const pageSize = Number(httpRequest.headers?.pageSize ?? 10);
+      const filters = { ...httpRequest.query, ...httpRequest.headers };
+      const startDate = new Date(filters?.startDate);
+      const endDate = new Date(filters?.endDate);
+      const status = String(filters?.status ?? "all");
+      const page = Number(filters?.page ?? 1);
+      const pageSize = Number(filters?.pageSize ?? 10);
       const accountId = Number(httpRequest.headers?.accountId || 0) || undefined;
 
       if (
-        !httpRequest.headers?.startDate ||
-        !httpRequest.headers?.endDate ||
+        !filters?.startDate ||
+        !filters?.endDate ||
         Number.isNaN(startDate.getTime()) ||
         Number.isNaN(endDate.getTime())
       ) {

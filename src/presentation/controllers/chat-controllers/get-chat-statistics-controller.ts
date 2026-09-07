@@ -6,25 +6,22 @@ import { getAccountScope } from "../../../main/realtime/store-scope";
 export class GetChatStatisticsController implements Controller {
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
-      const accountId = Number(httpRequest.headers?.accountId || 0);
+      const query = httpRequest.query || {};
+      const accountId =
+        Number(httpRequest.headers?.accountId || 0) ||
+        Number(query.accountId || 0) ||
+        undefined;
 
-      if (!accountId) {
-        return {
-          statusCode: 401,
-          body: { error: "Não autenticado" },
-        };
-      }
+      const scope = accountId ? await getAccountScope(prisma, accountId) : null;
 
-      const scope = await getAccountScope(prisma, accountId);
-
-      if (!scope) {
+      if (accountId && !scope) {
         return {
           statusCode: 404,
           body: { error: "Conta não encontrada" },
         };
       }
 
-      const whereClause = scope.visibleUnitIds.length
+      const whereClause = scope && scope.visibleUnitIds.length
         ? { unitStoreId: { in: scope.visibleUnitIds } }
         : undefined;
 
