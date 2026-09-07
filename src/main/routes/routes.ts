@@ -28,6 +28,10 @@ import { makeLoadCityController } from "../factories/load-city";
 import { makeLoadNeighborhoodController } from "../factories/load-neighborhood";
 import { makeAddCityController } from "../factories/add-city";
 import { makeAddNeighborhoodController } from "../factories/add-neighborhood";
+import { makeUpdateCityController } from "../factories/update-city";
+import { makeDeleteCityController } from "../factories/delete-city";
+import { makeUpdateNeighborhoodController } from "../factories/update-neighborhood";
+import { makeDeleteNeighborhoodController } from "../factories/delete-neighborhood";
 import { getAccountScope } from "../realtime/store-scope";
 import { prisma } from "../../infra/db/mysql/helpers";
 import { makeRefreshTokenController } from "../factories/refresh-token-factory";
@@ -62,7 +66,21 @@ export default (router: Router): void => {
   );
   router.get("/dashboard/overview", async (req, res) => {
     try {
-      const ordersWhere = undefined;
+      const startDateParam =
+        typeof req.query.startDate === "string" ? req.query.startDate : undefined;
+      const endDateParam =
+        typeof req.query.endDate === "string" ? req.query.endDate : undefined;
+      const parsedStart = startDateParam ? new Date(startDateParam) : undefined;
+      const parsedEnd = endDateParam ? new Date(endDateParam) : undefined;
+      const hasValidRange =
+        parsedStart &&
+        parsedEnd &&
+        !Number.isNaN(parsedStart.getTime()) &&
+        !Number.isNaN(parsedEnd.getTime());
+
+      const ordersWhere = hasValidRange
+        ? { data: { gte: parsedStart as Date, lte: parsedEnd as Date } }
+        : undefined;
 
       const [
         clientsCount,
@@ -111,12 +129,33 @@ export default (router: Router): void => {
         }),
       ]);
 
+      let previousDeliveredRevenue: number | null = null;
+      if (hasValidRange) {
+        const rangeMs = (parsedEnd as Date).getTime() - (parsedStart as Date).getTime();
+        const previousEnd = new Date((parsedStart as Date).getTime() - 1);
+        const previousStart = new Date(previousEnd.getTime() - rangeMs);
+
+        const previousRevenueAgg = await prisma.orderDelivery.aggregate({
+          where: {
+            data: { gte: previousStart, lte: previousEnd },
+            status: OrderStatus.finished,
+          },
+          _sum: { amount: true },
+        });
+
+        previousDeliveredRevenue = previousRevenueAgg._sum.amount ?? 0;
+      }
+
       res.status(200).json({
+        period: hasValidRange
+          ? { startDate: parsedStart, endDate: parsedEnd }
+          : null,
         metrics: {
           clients: clientsCount,
           deliverymen: deliverymenCount,
           activeDeliveries: activeDeliveriesCount,
           deliveredRevenue: deliveredRevenue._sum.amount ?? 0,
+          deliveredRevenuePreviousPeriod: previousDeliveredRevenue,
           cities: citiesCount,
           neighborhoods: neighborhoodsCount,
         },
@@ -137,9 +176,107 @@ export default (router: Router): void => {
     }
   });
 
+  router.get("/dashboard/performance", async (req, res) => {
+    try {
+      const now = new Date();
+      const defaultEnd = new Date(now);
+      defaultEnd.setHours(23, 59, 59, 999);
+      const defaultStart = new Date(now);
+      defaultStart.setDate(defaultStart.getDate() - 6);
+      defaultStart.setHours(0, 0, 0, 0);
+
+      const startDateParam =
+        typeof req.query.startDate === "string" ? req.query.startDate : undefined;
+      const endDateParam =
+        typeof req.query.endDate === "string" ? req.query.endDate : undefined;
+      const parsedStart = startDateParam ? new Date(startDateParam) : undefined;
+      const parsedEnd = endDateParam ? new Date(endDateParam) : undefined;
+
+      const startDate =
+        parsedStart && !Number.isNaN(parsedStart.getTime()) ? parsedStart : defaultStart;
+      const endDate = parsedEnd && !Number.isNaN(parsedEnd.getTime()) ? parsedEnd : defaultEnd;
+
+      const orders = await prisma.orderDelivery.findMany({
+        where: { data: { gte: startDate, lte: endDate } },
+        select: { data: true, finishedAt: true, status: true },
+      });
+
+      const dayFormatter = new Intl.DateTimeFormat("pt-BR", { weekday: "short" });
+      const totalsByDay = new Map<
+        string,
+        { date: string; label: string; total: number }
+      >();
+
+      orders.forEach((order) => {
+        const dateKey = order.data.toISOString().slice(0, 10);
+
+        if (!totalsByDay.has(dateKey)) {
+          totalsByDay.set(dateKey, {
+            date: dateKey,
+            label: dayFormatter.format(order.data).replace(".", ""),
+            total: 0,
+          });
+        }
+
+        totalsByDay.get(dateKey)!.total += 1;
+      });
+
+      const days = Array.from(totalsByDay.values()).sort((a, b) =>
+        a.date.localeCompare(b.date),
+      );
+
+      const finishedWithDuration = orders.filter(
+        (order) => order.status === OrderStatus.finished && order.finishedAt,
+      );
+
+      const avgDeliveryMinutes = finishedWithDuration.length
+        ? Math.round(
+            finishedWithDuration.reduce(
+              (sum, order) =>
+                sum +
+                ((order.finishedAt as Date).getTime() - order.data.getTime()) / 60000,
+              0,
+            ) / finishedWithDuration.length,
+          )
+        : null;
+
+      const peakDay = days.reduce<(typeof days)[number] | null>(
+        (peak, day) => (!peak || day.total > peak.total ? day : peak),
+        null,
+      );
+
+      res.status(200).json({
+        period: { startDate, endDate },
+        days,
+        totalOrders: orders.length,
+        avgDeliveryMinutes,
+        peakDay,
+      });
+    } catch (error) {
+      console.error("[dashboard/performance] Erro ao carregar dados:", error);
+      res
+        .status(500)
+        .json({ error: "Falha ao carregar desempenho do dashboard", details: String(error) });
+    }
+  });
+
   router.get("/dashboard/reports", async (req, res) => {
     try {
-      const ordersWhere = undefined;
+      const startDateParam =
+        typeof req.query.startDate === "string" ? req.query.startDate : undefined;
+      const endDateParam =
+        typeof req.query.endDate === "string" ? req.query.endDate : undefined;
+      const parsedStart = startDateParam ? new Date(startDateParam) : undefined;
+      const parsedEnd = endDateParam ? new Date(endDateParam) : undefined;
+      const hasValidRange =
+        parsedStart &&
+        parsedEnd &&
+        !Number.isNaN(parsedStart.getTime()) &&
+        !Number.isNaN(parsedEnd.getTime());
+
+      const ordersWhere = hasValidRange
+        ? { data: { gte: parsedStart as Date, lte: parsedEnd as Date } }
+        : undefined;
 
       const orders = await prisma.orderDelivery.findMany({
         where: ordersWhere,
@@ -249,6 +386,8 @@ export default (router: Router): void => {
   );
   router.put("/deliveryman/:id", adaptRoute(makeUpdateDeliverymanController()));
   router.put("/product/:id", adaptRoute(makeUpdateProductController()));
+  router.put("/city/:id", adaptRoute(makeUpdateCityController()));
+  router.put("/neighborhood/:id", adaptRoute(makeUpdateNeighborhoodController()));
   router.delete(
     "/register/:id",
 
@@ -265,6 +404,14 @@ export default (router: Router): void => {
   router.delete(
     "/product/:id",
     adaptRoute(makeDeleteProductController()),
+  );
+  router.delete(
+    "/city/:id",
+    adaptRoute(makeDeleteCityController()),
+  );
+  router.delete(
+    "/neighborhood/:id",
+    adaptRoute(makeDeleteNeighborhoodController()),
   );
 
   // Chat endpoints
