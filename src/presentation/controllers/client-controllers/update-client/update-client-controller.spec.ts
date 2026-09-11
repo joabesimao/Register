@@ -9,14 +9,12 @@ import { HttpRequest } from "../../../protocols/http";
 
 const makeFakeUpdateClient = (): ClientModel => ({
   name: "any_name",
-  lastName: "any_last_name",
   phone: "any_number",
 });
 
 const fakehttpRequest = (): HttpRequest => ({
   body: {
     name: "any_name",
-    lastName: "any_last_name",
     phone: "any_number",
   },
   params: {
@@ -60,7 +58,6 @@ describe("Load update client Controller", () => {
     const loadSpy = jest.spyOn(updateClientStub, "update");
     await sut.handle(fakehttpRequest());
     expect(loadSpy).toHaveBeenCalledWith(1, {
-      lastName: "any_last_name",
       name: "any_name",
       phone: "any_number",
     });

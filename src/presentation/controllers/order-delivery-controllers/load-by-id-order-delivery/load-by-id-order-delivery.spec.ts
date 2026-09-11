@@ -12,7 +12,6 @@ const makeFakeRequest = (): HttpRequest => ({
       id: 1,
       client: {
         name: "any_name",
-        lastName: "any_last_name",
         phone: "any_phone",
       },
       address: {
@@ -34,7 +33,6 @@ const makeOrderDelivery = (): OrderDeliveryModel => ({
     id: 1,
     client: {
       name: "any_name",
-      lastName: "any_last_name",
       phone: "any_phone",
     },
     address: {

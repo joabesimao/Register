@@ -7,7 +7,6 @@ import { HttpRequest } from "../../../protocols/http";
 const makeFakeRegisters = (): LoadRegisterModel => ({
   id: 1,
   client: {
-    lastName: "ultimo_nome",
     name: "any_name",
     phone: "123456747",
   },
@@ -24,7 +23,6 @@ const fakehttpRequest = (): HttpRequest => ({
   body: {
     client: {
       id: 1,
-      lastName: "ultimo_nome",
       name: "any_name",
       phone: "123456747",
     },

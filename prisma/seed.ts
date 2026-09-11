@@ -8,8 +8,7 @@ const DEFAULT_ADMIN_PASSWORD = "12345678";
 const initialClients = [
   {
     client: {
-      name: "Joao",
-      lastName: "Silva",
+      name: "Joao Silva",
       phone: "85999990001",
       cpf: "12345678901",
     },
@@ -23,8 +22,7 @@ const initialClients = [
   },
   {
     client: {
-      name: "Maria",
-      lastName: "Alves",
+      name: "Maria Alves",
       phone: "85999990002",
       cpf: "12345678902",
     },
@@ -38,8 +36,7 @@ const initialClients = [
   },
   {
     client: {
-      name: "Carlos",
-      lastName: "Lima",
+      name: "Carlos Lima",
       phone: "85999990003",
       cpf: "12345678903",
     },
@@ -156,7 +153,6 @@ async function main() {
           client: {
             create: {
               name: entry.client.name,
-              lastName: entry.client.lastName,
               phone: entry.client.phone,
               cpf: entry.client.cpf,
             },

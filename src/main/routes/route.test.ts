@@ -38,7 +38,6 @@ describe("Register Routes POST/registers", () => {
       .send({
         client: {
           name: "any_name",
-          lastName: "any_last_name",
           phone: "any_phone",
         },
         address: {
@@ -114,7 +113,6 @@ describe("GET /Register", () => {
         client: {
           id: 2,
           name: "any_name",
-          lastName: "any_last_name",
           phone: "any_number",
         },
         address: {
@@ -241,7 +239,6 @@ describe("OrderDelivery Routes POST/orderDelivery", () => {
             id: 1,
             client: {
               name: "any_name",
-              lastName: "any_last_name",
               phone: "any_phone",
             },
             address: {

@@ -37,7 +37,6 @@ export class ClientMysqlRepository
     const createClient = await this.prisma.client.create({
       data: {
         name: client.name,
-        lastName: client.lastName,
         cpf: cpfClean,
         phone: client.phone,
       },

@@ -30,7 +30,6 @@ const fakehttpRequest = (): HttpRequest => ({
   body: {
     client: {
       id: 1,
-      lastName: "ultimo_nome",
       name: "any_name",
       phone: "123456747",
     },

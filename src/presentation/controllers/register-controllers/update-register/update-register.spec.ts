@@ -13,7 +13,6 @@ const fakehttpRequest = (): HttpRequest => ({
   body: {
     id: 1,
     client: {
-      lastName: "ultimo_nome",
       name: "any_name",
       phone: "123456747",
     },
@@ -33,7 +32,6 @@ const fakehttpRequest = (): HttpRequest => ({
 const makeFakeRegisters = (): RegisterModel => ({
   id: 1,
   client: {
-    lastName: "ultimo_nome",
     name: "any_name",
     phone: "123456747",
   },

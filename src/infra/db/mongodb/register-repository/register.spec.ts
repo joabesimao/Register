@@ -28,7 +28,6 @@ describe("Register Mongo Repository", () => {
       const register = await sut.add({
         client: {
           name: "any_name",
-          lastName: "any_last_name",
           phone: "any_phone",
         },
         address: {
@@ -59,7 +58,6 @@ describe("Register Mongo Repository", () => {
             id: 1,
             client: {
               name: "any_name",
-              lastName: "any_last_name",
               phone: "any_number",
             },
             address: {
@@ -77,7 +75,6 @@ describe("Register Mongo Repository", () => {
         id: 1,
         client: {
           name: "any_name",
-          lastName: "any_last_name",
           phone: "any_number",
         },
         address: {
@@ -93,7 +90,6 @@ describe("Register Mongo Repository", () => {
         id: 1,
         client: {
           name: "any_name",
-          lastName: "any_last_name",
           phone: "any_number",
         },
         address: {
@@ -115,7 +111,6 @@ describe("Register Mongo Repository", () => {
       await sut.add({
         client: {
           name: "any_name",
-          lastName: "any_last_name",
           phone: "any_phone",
         },
         address: {
@@ -129,7 +124,6 @@ describe("Register Mongo Repository", () => {
       await sut.add({
         client: {
           name: "other_name",
-          lastName: "any_last_name",
           phone: "any_phone",
         },
         address: {
@@ -154,7 +148,6 @@ describe("Register Mongo Repository", () => {
         client: {
           id: 1,
           name: "any_name",
-          lastName: "any_last_name",
           phone: "any_number",
         },
         address: {
@@ -178,7 +171,6 @@ describe("Register Mongo Repository", () => {
         client: {
           id: 1,
           name: "any_name",
-          lastName: "any_last_name",
           phone: "any_number",
         },
         address: {
