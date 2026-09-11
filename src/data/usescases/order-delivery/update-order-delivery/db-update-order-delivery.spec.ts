@@ -14,7 +14,6 @@ const makeFakeOrderDelivery = (): OrderDeliveryModel => ({
     id: 2,
     client: {
       name: "any_name",
-      lastName: "any_last_name",
       phone: "any_number",
     },
     address: {

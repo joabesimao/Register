@@ -13,14 +13,12 @@ import {
 const makeFakeRequest = (): HttpRequest => ({
   body: {
     name: "any_name",
-    lastName: "any_last_name",
     phone: "any_phone",
   },
 });
 
 const makeFakeClientModel = (): ClientModel => ({
   name: "any_name",
-  lastName: "any_last_name",
   phone: "any_phone",
 });
 
@@ -54,7 +52,6 @@ describe("addClient Controller", () => {
     await sut.handle(fakeRequest);
     expect(addRegisterSpy).toHaveBeenCalledWith({
       name: "any_name",
-      lastName: "any_last_name",
       phone: "any_phone",
     });
   });

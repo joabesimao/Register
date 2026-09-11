@@ -14,7 +14,6 @@ const makeOrders = (): OrderDeliveryModel[] => [
       id: 1,
       client: {
         name: "any_name",
-        lastName: "any_last_name",
         phone: "any_phone",
       },
       address: {
@@ -34,7 +33,6 @@ const makeOrders = (): OrderDeliveryModel[] => [
       id: 3,
       client: {
         name: "other_name",
-        lastName: "other_last_name",
         phone: "other_phone",
       },
       address: {

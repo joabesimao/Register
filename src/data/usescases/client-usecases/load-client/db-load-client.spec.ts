@@ -7,13 +7,11 @@ const makeFakeClientList = (): ClientModel[] => {
   return [
     {
       name: "any_name",
-      lastName: "any_last_name",
       phone: "any_number",
     },
 
     {
       name: "other_name",
-      lastName: "other_last_name",
       phone: "other_number",
     },
   ];

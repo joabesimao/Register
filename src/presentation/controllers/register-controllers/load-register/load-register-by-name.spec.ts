@@ -8,7 +8,6 @@ const makeFakeRegisters = (): LoadRegisterModel => ({
   id: 1,
   client: {
     name: "any_name",
-    lastName: "any_last_name",
     phone: "any_number",
   },
   address: {
@@ -24,7 +23,6 @@ const fakehttpRequest = (): HttpRequest => ({
   body: {
     client: {
       id: 1,
-      lastName: "ultimo_nome",
       name: "any_name",
       phone: "123456747",
     },

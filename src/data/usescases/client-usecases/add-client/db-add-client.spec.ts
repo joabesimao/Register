@@ -10,7 +10,6 @@ interface SutTypes {
 
 const makeClient = (): ClientModel => ({
   name: "any_name",
-  lastName: "any_last_name",
   phone: "any_phone",
 });
 
@@ -40,7 +39,6 @@ describe("DbAddClient Usecase", () => {
     await sut.add(makeClient());
     expect(addSpy).toHaveBeenCalledWith({
       name: "any_name",
-      lastName: "any_last_name",
       phone: "any_phone",
     });
   });

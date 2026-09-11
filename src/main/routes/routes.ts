@@ -163,8 +163,7 @@ export default (router: Router): void => {
           id: order.id,
           status: order.status,
           amount: order.amount,
-          clientName:
-            `${order.Register.client.name} ${order.Register.client.lastName}`.trim(),
+          clientName: order.Register.client.name,
           deliverymanName: order.deliveryman
             ? `${order.deliveryman.name} ${order.deliveryman.lastName}`.trim()
             : "Sem entregador",

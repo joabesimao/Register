@@ -12,7 +12,6 @@ const makeOrderDelivery = {
     id: 1,
     client: {
       name: "any_name",
-      lastName: "any_last_name",
       phone: "any_number",
     },
     address: {

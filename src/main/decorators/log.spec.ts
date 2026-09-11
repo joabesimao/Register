@@ -58,7 +58,6 @@ describe("LogController Decorator", () => {
         client: {
           id: 1,
           name: "any_name",
-          lastName: "any_last_name",
           phone: "any_phone",
         },
         address: {
@@ -83,7 +82,6 @@ describe("LogController Decorator", () => {
         client: {
           id: 1,
           name: "any_name",
-          lastName: "any_last_name",
           phone: "any_phone",
         },
         address: {
@@ -121,7 +119,6 @@ describe("LogController Decorator", () => {
         client: {
           id: 1,
           name: "any_name",
-          lastName: "any_last_name",
           phone: "any_phone",
         },
         address: {
